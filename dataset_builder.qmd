@@ -1,0 +1,94 @@
+---
+title: "Dataset Builder"
+author: "Grant Quattlebaum"
+format: html
+execute:
+  echo: false
+---
+
+```{r}
+#| message: false
+#| label: setup
+
+#Loading used libraries (tidyverse for general use, tidycensus for Census data requests)
+#NOTE: This code is designed to run with a valid stored Census API key. If you have a key and it isn't stored, add it to the next line and uncomment it.
+# census_api_key("YOUR KEY GOES HERE")
+library(tidyverse)
+library(tidycensus)
+```
+
+Occupied and Vacant Housing
+```{r}
+#| message: false
+#| label: Occupied and Vacant Housing
+
+housing_units <- get_acs(
+  geography = "place",
+  variables = c(
+    total = "B25001_001",       # Total housing units
+    occupied = "B25002_002",    # Occupied housing units
+    vacant = "B25002_003"       # Vacant housing units
+  ),
+  year = 2019,
+  survey = "acs5"
+)
+write_csv(housing_units, "website/data/house_nums.csv")
+glimpse(housing_units)
+```
+Owner Occupied Housing
+```{r}
+#| message: false
+#| label: Owner Occupied Housing
+
+housing_owner_data <- get_acs(
+  geography = "place", #To get municipal data
+  variables = c(owner_occupied = "B25003_002", renter_occupied = "B25003_003"), #Owner occupied is number of homes in region owner lives in, renter occupied is number of homes renter lives in
+  year = 2019,
+  survey = "acs5"
+)
+write_csv(housing_owner_data, "website/data/housing_muni.csv")
+glimpse(housing_owner_data)
+```
+
+```{r}
+#| message: false
+#| label: Income Data
+
+income_data <- get_acs(
+  geography = "place",
+  variables = "B19013_001", #gives average income by municipality
+  year = 2019,
+  survey = "acs5"
+)
+
+write_csv(income_data, "website/data/income_data.csv")
+glimpse(income_data)
+```
+
+```{r}
+#| message: false
+#| label: Rent Data
+
+rent_data <- get_acs(geography = "place",
+                   variables = c(median_rent = "B25064_001"), 
+                   year = 2019)
+
+write_csv(rent_data, "website/data/rent_data.csv")
+glimpse(rent_data)
+```
+
+```{r}
+#| message: false
+#| label: Population Data
+
+population_data <- get_acs(geography = "place", 
+                           variables = "B01003_001", 
+                           year = 2019)
+
+write.csv(population_data, "website/data/pop_data.csv")
+glimpse(population_data)
+```
+
+
+
+
