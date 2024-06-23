@@ -1,0 +1,16 @@
+[
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "I’m Grant Quattlebaum, I’m an aspiring computer scientist, my Github profile is GrantQ9 and my email address is grantq9@gmail.com.\nThis project discusses the relationship between a number of different kinds of zoning restrictions and rent payments. For access to all the data and code used in the project, see the Github page here.\nThis project was done as part of my time in Kane’s Data Science Bootcamp."
+  },
+  {
+    "objectID": "sources.html",
+    "href": "sources.html",
+    "title": "My Sources",
+    "section": "",
+    "text": "The main dataset used in this project was the National Zoning and Land Use Database dataset (the nzlud_msa.csv file found here), while all other data come from varying US Census polls accessed through R’s tidycensus library."
+  }
+]

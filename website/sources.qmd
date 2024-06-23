@@ -1,0 +1,5 @@
+---
+title: "My Sources"
+---
+
+The main dataset used in this project was the National Zoning and Land Use Database dataset (the nzlud_msa.csv file found [here](https://github.com/mtmleczko/nzlud)), while all other data come from varying US Census polls accessed through R's tidycensus library.

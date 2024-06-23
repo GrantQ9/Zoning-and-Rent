@@ -1,0 +1,9 @@
+---
+title: "About"
+---
+
+I'm Grant Quattlebaum, I'm an aspiring computer scientist, my Github profile is [GrantQ9](https://github.com/GrantQ9) and my email address is <grantq9@gmail.com>.
+
+This project discusses the relationship between a number of different kinds of zoning restrictions and rent payments. For access to all the data and code used in the project, see the Github page  [here](https://github.com/GrantQ9/Zoning-and-Rent).
+
+This project was done as part of my time in [Kane's Data Science Bootcamp](https://bootcamp.davidkane.info/).
