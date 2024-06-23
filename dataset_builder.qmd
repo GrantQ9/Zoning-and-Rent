@@ -32,7 +32,7 @@ housing_units <- get_acs(
   year = 2019,
   survey = "acs5"
 )
-write_csv(housing_units, "website/data/house_nums.csv")
+write_csv(housing_units, "data/house_nums.csv")
 glimpse(housing_units)
 ```
 Owner Occupied Housing
@@ -46,10 +46,10 @@ housing_owner_data <- get_acs(
   year = 2019,
   survey = "acs5"
 )
-write_csv(housing_owner_data, "website/data/housing_muni.csv")
+write_csv(housing_owner_data, "data/housing_muni.csv")
 glimpse(housing_owner_data)
 ```
-
+Income Data
 ```{r}
 #| message: false
 #| label: Income Data
@@ -61,10 +61,10 @@ income_data <- get_acs(
   survey = "acs5"
 )
 
-write_csv(income_data, "website/data/income_data.csv")
+write_csv(income_data, "data/income_data.csv")
 glimpse(income_data)
 ```
-
+Rent Data
 ```{r}
 #| message: false
 #| label: Rent Data
@@ -73,10 +73,10 @@ rent_data <- get_acs(geography = "place",
                    variables = c(median_rent = "B25064_001"), 
                    year = 2019)
 
-write_csv(rent_data, "website/data/rent_data.csv")
+write_csv(rent_data, "data/rent_data.csv")
 glimpse(rent_data)
 ```
-
+Population Data
 ```{r}
 #| message: false
 #| label: Population Data
@@ -85,7 +85,7 @@ population_data <- get_acs(geography = "place",
                            variables = "B01003_001", 
                            year = 2019)
 
-write.csv(population_data, "website/data/pop_data.csv")
+write.csv(population_data, "data/pop_data.csv")
 glimpse(population_data)
 ```
 

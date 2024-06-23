@@ -1,0 +1,166 @@
+---
+title: "graph-constructor"
+author: "Grant Quattlebaum"
+format: html
+execute:
+  echo: false
+---
+
+```{r}
+#| message: false
+#| label: setup
+
+#gridExtra needed for building one of the final graphs)
+library(tidyverse)
+library(gridExtra)
+```
+
+
+```{r}
+#| message: false
+#| label: data_reading
+
+
+#nzlud_muni.csv from https://github.com/mtmleczko/nzlud, other data obtained using tidycensus in dataset_builder.qmd
+
+zoning_data <- read.csv("data/nzlud_muni.csv")
+rent_data <- read.csv("data/rent_data.csv") |>
+  rename_at("estimate", ~"avg_rent_est")
+population_data <- read_csv("data/pop_data.csv") |> 
+  rename_at("estimate", ~"population_est") |> #Many of the census pulls have an estimate, renamed here to keep distinct in the larger dataset
+  mutate(GEOID = as.numeric(GEOID)) #Want all GEOID's numeric to allow for joining
+income_data <- read_csv("data/income_data.csv") |>
+  mutate(GEOID = as.numeric(GEOID)) |>
+  rename_at("estimate", ~"avg_income_est") 
+
+
+```
+
+
+```{r}
+#| message: false
+#| label: data_combining
+
+zoning_plus_rent <- zoning_data |>
+  left_join(rent_data, join_by(GEOID)) 
+
+#Doing separate calls to join as doing all at once causes error
+zoning_plus_pop <- zoning_plus_rent |>
+  left_join(population_data, join_by(GEOID))
+
+zoning_plus_income <- zoning_plus_pop |>
+  left_join(income_data, join_by(GEOID))
+
+```
+
+
+```{r}
+#| message: false
+#| label: data_tidying
+
+#dominant_min_lot is made to capture municipalities where one type of minimum lot size predominates, don't want municipalities evenly split between two types in graph so as not to muddy trends
+
+zoning_tidied <- zoning_plus_income |> 
+  drop_na(avg_income_est, avg_rent_est) |>
+  mutate(
+    rent_percent_income = avg_rent_est / avg_income_est * 100, #This gives the percent of average income the average rent is
+    dominant_min_lot = case_when(
+      half_acre_less > 0.7 ~ "Less than half an acre",
+      half_acre_more > 0.7 ~ "Between one-half and one acres",
+      one_acre_more > 0.7 ~ "Between one and two acres",
+      two_acre_more > 0.7 ~ "More than two acres",
+      TRUE ~ "None"
+    ))
+```
+
+
+
+
+```{r}
+#| message: false
+#| label: main_plot_construction
+
+#Variables to determine axis boundaries so all 4 graphs have the same x and y axis
+x_limits <- range(zoning_tidied$zri, na.rm = TRUE)
+y_limits <- range(zoning_tidied$rent_percent_income, na.rm = TRUE)
+
+#Did 4 plots based on possible minimum lot size values in the dataset as there's a clear interesting outlier when graphed
+#Used zri (the Zoning Restrictiveness Index from Eviction Labs) as all the zoning variables I tried plotting had too little effect on rent individually to make an interesting plot, while the combined index does. 
+#Used "rent as percent of income" to help adjust for the fact high rents are often indicative of desirability
+less_half_lot_graph <- zoning_tidied |> 
+  filter(dominant_min_lot == "Less than half an acre") |>
+  ggplot(aes(x = zri,
+             y = rent_percent_income)) +
+  geom_point(color = "orange") +
+  geom_smooth(method=lm, color = "black") +
+  theme(legend.position = "none") +
+  xlim(x_limits) +
+  ylim(y_limits) + 
+  labs(
+    title = "Minimum Lot Size is Less than Half an Acre",
+    x = "Zoning Restrictiveness Index",
+    y = "Rent as Percentage of Income"
+  )
+
+half_to_one_lot_graph <- zoning_tidied |> 
+  filter(dominant_min_lot == "Between one-half and one acres") |>
+  ggplot(aes(x = zri,
+             y = rent_percent_income)) +
+  geom_point(color = "green") +
+  geom_smooth(method=lm, color = "black") +
+  theme(legend.position = "none") +
+  xlim(x_limits) +
+  ylim(y_limits) + 
+  labs(
+    title = "Minimum Lot Size is Between Half an Acre and One Acre",
+    x = "Zoning Restrictiveness Index",
+    y = "Rent as Percentage of Income"
+  )
+
+one_to_two_lot_graph <- zoning_tidied |> 
+  filter(dominant_min_lot == "Between one and two acres") |>
+  ggplot(aes(x = zri,
+             y = rent_percent_income)) +
+  geom_point(color = "aquamarine3") +
+  geom_smooth(method=lm, color = "black") +
+  theme(legend.position = "none") +
+  xlim(x_limits) +
+  ylim(y_limits) +
+  labs(
+    title = "Minimum Lot Size is Between One and Two Acres",
+    x = "Zoning Restrictiveness Index",
+    y = "Rent as Percentage of Income"
+  )
+
+two_plus_lot_graph <- zoning_tidied |> 
+  filter(dominant_min_lot == "More than two acres") |>
+  ggplot(aes(x = zri,
+             y = rent_percent_income)) +
+  geom_point(color = "violet") +
+  geom_smooth(method=lm, color = "black") +
+  theme(legend.position = "none") +
+  xlim(x_limits) +
+  ylim(y_limits) +
+  labs(
+    title = "Minimum Lot Size is More than Two Acres",
+    x = "Zoning Restrictiveness Index",
+    y = "Rent as Percentage of Income",
+    caption = "Data from US Census and Eviction Lab's National Zoning and Land Use Database at\n https://evictionlab.org/national-zoning-and-land-use-database/"
+  )
+
+minimum_lot_size_comparison <- arrangeGrob(less_half_lot_graph, half_to_one_lot_graph, one_to_two_lot_graph, two_plus_lot_graph, ncol=2)
+ggsave("minimum_lot_size_comparison.png", minimum_lot_size_comparison, width = 12, height = 12)
+
+
+```
+**Minimum Lot Size's Effects On The Relationship Between Zoning And Rent Across Municipalities**
+![](minimum_lot_size_comparison.png)
+```{r}
+#| message: false
+#| label: overall_trendline_plot
+
+
+```
+
+
+
