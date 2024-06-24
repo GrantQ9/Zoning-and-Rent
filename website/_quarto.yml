@@ -10,12 +10,14 @@ website:
       - about.qmd
       - href: sources.qmd
         text: Sources
+      - href: additional_graphs.qmd
+        text: Additional Graphs
 
       
 
 format:
   html:
-    theme: cosmo
+    theme: minty
     css: styles.css
     toc: true
 

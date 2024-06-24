@@ -29,7 +29,7 @@ housing_units <- get_acs(
     occupied = "B25002_002",    # Occupied housing units
     vacant = "B25002_003"       # Vacant housing units
   ),
-  year = 2019,
+  year = 2022,
   survey = "acs5"
 )
 write_csv(housing_units, "data/house_nums.csv")
@@ -43,7 +43,7 @@ Owner Occupied Housing
 housing_owner_data <- get_acs(
   geography = "place", #To get municipal data
   variables = c(owner_occupied = "B25003_002", renter_occupied = "B25003_003"), #Owner occupied is number of homes in region owner lives in, renter occupied is number of homes renter lives in
-  year = 2019,
+  year = 2022,
   survey = "acs5"
 )
 write_csv(housing_owner_data, "data/housing_muni.csv")
@@ -57,7 +57,7 @@ Income Data
 income_data <- get_acs(
   geography = "place",
   variables = "B19013_001", #gives average income by municipality
-  year = 2019,
+  year = 2022,
   survey = "acs5"
 )
 
@@ -71,7 +71,7 @@ Rent Data
 
 rent_data <- get_acs(geography = "place",
                    variables = c(median_rent = "B25064_001"), 
-                   year = 2019)
+                   year = 2022)
 
 write_csv(rent_data, "data/rent_data.csv")
 glimpse(rent_data)
@@ -83,7 +83,7 @@ Population Data
 
 population_data <- get_acs(geography = "place", 
                            variables = "B01003_001", 
-                           year = 2019)
+                           year = 2022)
 
 write.csv(population_data, "data/pop_data.csv")
 glimpse(population_data)

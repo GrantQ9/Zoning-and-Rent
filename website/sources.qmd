@@ -2,4 +2,4 @@
 title: "My Sources"
 ---
 
-The main dataset used in this project was the National Zoning and Land Use Database dataset (the nzlud_muni.csv file found [here](https://github.com/mtmleczko/nzlud)), while all other data come from varying US Census polls accessed through R's tidycensus library.
+The main dataset used in this project was the National Zoning and Land Use Database dataset (the nzlud_muni.csv file found [here](https://github.com/mtmleczko/nzlud)), while all other data comes from the 2018-2022 American Community Survey. This period of time was chosen to most closely match the data in the NZLUD dataset, which was collected from 2019 to 2022.
