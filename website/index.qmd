@@ -1,13 +1,16 @@
 ---
 title: "Overview"
 ---
+## Summary:
+  Debate about zoning laws and housing supply has been common in America the last few years, and rent is a ubiquitous concern for many for far longer. To better understand the relationship between the two, for a variety of cities average rent (as a percentage of income) was graphed against the amount of zoning restrictions there. Additionally, cities were sorted by minimum lot size to show how that effected rent. While increased zoning does correlate with higher rent, that's not true for any individual zoning law.
+
+
+
 **Minimum Lot Size's Effects On The Relationship Between Zoning And Rent Across Municipalities** 
 
 
 ![](minimum_lot_size_comparison.png)
 
-## Discussion:
-  Debate about zoning laws and housing supply has been common in America the last few years, and rent is a ubiquitous concern for many for far longer. To better understand the relationship between these, a large cross section of American municipalities were graphed to show the relation between the average amount spent on rent (as a percentage of the average income in that region) and the amount of exclusionary zoning there (as measured by the Zoning Restrictiveness Index from Eviction Lab). Furthermore, these relationships were shown split according to a specific zoning rule, minimum lot size: each category is made up of municipalities where the specific minimum lot size was used by at least 70% of the residential districts.
-
+## Elaboration:
   Unsurprisingly, a larger zoning index is associated with spending more income on rent across all four types of minimum lot size. However, the smallest lot size is associated with a higher percentage of income spent on rent than the others, despite being the least restrictive zoning requirement of them. 
 

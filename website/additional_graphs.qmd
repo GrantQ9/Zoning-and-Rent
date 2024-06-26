@@ -3,4 +3,26 @@ title: "Supplementary Graphs"
 format: html
 ---
 
-WIP
+## Lot Size
+
+![](minimum_lot_size_combined.png)
+
+This shows both that there is a relation between zoning laws and paying more income as rent, and that higher minimum lot size is associated with overall higher zoning.
+
+![](all_trendline_graph.png)
+
+If we look just at the trendlines split among minimum lot size, however, it's clear that larger minimum lot size is associated with paying less income as rent, the opposite of what we would expect from the overall trend. Zoning still is associated with higher rents for each category, but this particular measure of zoning has the opposite relation.
+
+![](raw_rent_graph.png)
+
+The previous plots have shown income as a percentage of rent: if instead you just graph average rent, the trend is similar but now the most expensive minimum lot size is between 1/2 and 1 acres.
+
+## Other Zoning Regulations
+
+![](mode_parking.png)
+
+Residential parking requirements behaves weirdly as well: requiring 2 parking spaces per residence correlates with lower rents than requiring only 1.
+
+![](open_space_graph.png)
+
+To be clear, not all zoning regulations exhibit this odd behavior: for example, requiring open space is associated with higher absolute rents.

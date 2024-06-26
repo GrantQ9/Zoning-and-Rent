@@ -24,11 +24,10 @@ library(gridExtra)
 #nzlud_muni.csv from https://github.com/mtmleczko/nzlud, other data obtained using tidycensus in dataset_builder.qmd
 
 zoning_data <- read.csv("data/nzlud_muni.csv")
+
 rent_data <- read.csv("data/rent_data.csv") |>
   rename_at("estimate", ~"avg_rent_est")
-population_data <- read_csv("data/pop_data.csv") |> 
-  rename_at("estimate", ~"population_est") |> #Many of the census pulls have an estimate, renamed here to keep distinct in the larger dataset
-  mutate(GEOID = as.numeric(GEOID)) #Want all GEOID's numeric to allow for joining
+
 income_data <- read_csv("data/income_data.csv") |>
   mutate(GEOID = as.numeric(GEOID)) |>
   rename_at("estimate", ~"avg_income_est") 
@@ -45,10 +44,8 @@ zoning_plus_rent <- zoning_data |>
   left_join(rent_data, join_by(GEOID)) 
 
 #Doing separate calls to join as doing all at once causes error
-zoning_plus_pop <- zoning_plus_rent |>
-  left_join(population_data, join_by(GEOID))
 
-zoning_plus_income <- zoning_plus_pop |>
+zoning_plus_income <- zoning_plus_rent |>
   left_join(income_data, join_by(GEOID))
 
 ```
@@ -63,7 +60,7 @@ zoning_plus_income <- zoning_plus_pop |>
 zoning_tidied <- zoning_plus_income |> 
   drop_na(avg_income_est, avg_rent_est) |>
   mutate(
-    rent_percent_income = avg_rent_est / avg_income_est * 100, #This gives the percent of average income the average rent is
+    rent_percent_income = avg_rent_est / avg_income_est * 100 * 12, #This gives the what percent of average income the average rent costs
     dominant_min_lot = case_when(
       half_acre_less > 0.7 ~ "Less than half an acre",
       half_acre_more > 0.7 ~ "Between one-half and one acres",
@@ -86,7 +83,7 @@ y_limits <- range(zoning_tidied$rent_percent_income, na.rm = TRUE)
 
 #Did 4 plots based on possible minimum lot size values in the dataset as there's a clear interesting outlier when graphed
 #Used zri (the Zoning Restrictiveness Index from Eviction Labs) as all the zoning variables I tried plotting had too little effect on rent individually to make an interesting plot, while the combined index does. 
-#Used "rent as percent of income" to help adjust for the fact high rents are often indicative of desirability
+#Used "rent as percent of income" to help adjust for the fact high rents are often indicative of high possible incomes
 less_half_lot_graph <- zoning_tidied |> 
   filter(dominant_min_lot == "Less than half an acre") |>
   ggplot(aes(x = zri,
@@ -145,7 +142,7 @@ two_plus_lot_graph <- zoning_tidied |>
     title = "Minimum Lot Size is More than Two Acres",
     x = "Zoning Restrictiveness Index",
     y = "Rent as Percentage of Income",
-    caption = "Data from US Census and Eviction Lab's National Zoning and Land Use Database at\n https://evictionlab.org/national-zoning-and-land-use-database/"
+    caption = "Data from US Census and Eviction Lab's National Zoning and Land Use Database at\n https://evictionlab.org/national-zoning-and-land-use-database/\n and the 2018-2022 American Community Survey"
   )
 
 minimum_lot_size_comparison <- arrangeGrob(less_half_lot_graph, half_to_one_lot_graph, one_to_two_lot_graph, two_plus_lot_graph, ncol=2)
@@ -157,10 +154,170 @@ ggsave("minimum_lot_size_comparison.png", minimum_lot_size_comparison, width = 1
 ![](minimum_lot_size_comparison.png)
 ```{r}
 #| message: false
-#| label: overall_trendline_plot
+#| label: all_min_lot_size
+
+zoning_tidied$dominant_min_lot <- factor(zoning_tidied$dominant_min_lot, levels = c("Less than half an acre",
+                               "Between one-half and one acres",
+                               "Between one and two acres",
+                               "More than two acres"))
+
+
+combined_zoning <- zoning_tidied |> 
+  ggplot(aes(x = zri,
+             y = rent_percent_income,
+             color = dominant_min_lot)) +
+  geom_point(alpha = 0.8) +
+  geom_smooth(method=lm, color = "black") +
+  xlim(x_limits) +
+  ylim(y_limits) + 
+  labs(
+    title = "Zoning, Rent (as percent of income) and Minimum Lot Size",
+    subtitle = "Increased zoning correlates with paying more income as rent, and a larger minimum lot size",
+    color = "Minimum Lot Size",
+    x = "Zoning Restrictiveness Index",
+    y = "Rent as Percentage of Income",
+  )
+
+combined_zoning
+ggsave("minimum_lot_size_combined.png", combined_zoning)
 
 
 ```
+
+```{r}
+#| message: false
+#| label: all_trendline
+
+
+all_trendline_graph <- zoning_tidied |> 
+  ggplot(aes(x = zri,
+             y = rent_percent_income,
+             color = dominant_min_lot)) +
+  geom_smooth(method=lm, se = FALSE) +
+  labs(
+    title = "Trendlines for each Minimum Lot Size",
+    subtitle = "Less restrictive zoning is associated with paying more of one's income as rent",
+    x = "Zoning Restrictiveness Index",
+    y = "Rent as Percentage of Income",
+    color = "Minimum Lot Size",
+    caption = "Data from US Census and Eviction Lab's National Zoning and Land Use Database at\n https://evictionlab.org/national-zoning-and-land-use-database/\n and the 2018-2022 American Community Survey"
+  )
+
+all_trendline_graph
+ggsave("all_trendline_graph.png", all_trendline_graph)
+
+```
+```
+
+```{r}
+#| message: false
+#| label: parking_mode
+
+
+mode_parking_graph <- zoning_tidied |> 
+  mutate(parking_mode_case = case_when(
+    parking_mode > 2 ~ "More Than 2",
+    parking_mode == 2 ~ "2",
+    parking_mode == 1 ~ "1")) |>
+  filter(!is.na(parking_mode_case)) |>
+  ggplot(aes(x = zri,
+             y = rent_percent_income,
+             color = parking_mode_case)) +
+  geom_point(alpha = 0.1) + 
+  geom_smooth(method=lm, se = FALSE) +
+  labs(
+    title = "Trendlines for Amount of Required Residential Parking",
+    subtitle = "Requiring more residential parking  is correlated \nwith tenants paying more of their rent as income",
+    x = "Zoning Restrictiveness Index",
+    y = "Rent as Percentage of Income",
+    color = "Average Number of \nRequired Parking Spaces",
+    caption = "Data from US Census and Eviction Lab's National Zoning and Land Use Database at\n https://evictionlab.org/national-zoning-and-land-use-database/\n and the 2018-2022 American Community Survey"
+  )
+
+mode_parking_graph
+ggsave("mode_parking.png", mode_parking_graph)
+```
+
+```{r}
+#| message: false
+#| label: unadjusted_rent
+
+
+raw_rent_graph <- zoning_tidied |> 
+  ggplot(aes(x = zri,
+             y = avg_rent_est,
+             color = dominant_min_lot)) +
+  geom_point(alpha = 0.2) + 
+  geom_smooth(method=lm, se = FALSE) +
+  labs(
+    title = "Zoning, Rent, and Minimum Lot Size",
+    subtitle = "Increased zoning correlates with paying more income as rent, and a larger minimum lot size",
+    x = "Zoning Restrictiveness Index",
+    y = "Rent (dollars)",
+    color = "Required Minimum Lot Size",
+    caption = "Data from US Census and Eviction Lab's National Zoning and Land Use Database at\n https://evictionlab.org/national-zoning-and-land-use-database/\n and the 2018-2022 American Community Survey"
+  )
+
+
+raw_rent_graph
+ggsave("raw_rent_graph.png", raw_rent_graph)
+
+```
+
+```{r}
+#| message: false
+#| label: open_space
+
+open_space_graph <- zoning_tidied |> 
+  mutate(req_open = case_when(
+    open_space == 1 ~ "Yes",
+    open_space == 0 ~ "No")) |>
+  ggplot(aes(x = zri,
+             y = avg_rent_est,
+             color = req_open)) +
+  geom_point(alpha = 0.2) + 
+  geom_smooth(method=lm, se = FALSE) +
+  labs(
+    title = "Open Space Requirements, Zoning, and Rent",
+    subtitle = "Open space requirements are associated with paying more income as rent and more zoning",
+    x = "Zoning Restrictiveness Index",
+    y = "Rent (dollars)",
+    color = "Open Space Required?",
+    caption = "Data from US Census and Eviction Lab's National Zoning and Land Use Database at\n https://evictionlab.org/national-zoning-and-land-use-database/\n and the 2018-2022 American Community Survey"
+  )
+  
+open_space_graph
+ggsave("open_space_graph.png", open_space_graph)
+```
+
+```{r}
+#| message: false
+#| label: open_space_perc
+
+open_space_perc_graph <- zoning_tidied |> 
+  mutate(req_open = case_when(
+    open_space == 1 ~ "Yes",
+    open_space == 0 ~ "No")) |>
+  ggplot(aes(x = zri,
+             y = rent_percent_income,
+             color = req_open)) +
+  geom_point(alpha = 0.2) + 
+  geom_smooth(method=lm, se = FALSE) +
+  labs(
+    title = "Open Space Requirements, Zoning, and Rent",
+    subtitle = "Open space requirements are associated with paying more income as rent and more zoning",
+    x = "Zoning Restrictiveness Index",
+    y = "Rent (dollars)",
+    color = "Open Space Required?",
+    caption = "Data from US Census and Eviction Lab's National Zoning and Land Use Database at\n https://evictionlab.org/national-zoning-and-land-use-database/\n and the 2018-2022 American Community Survey"
+  )
+  
+open_space_perc_graph
+```
+
+
+
+
 
 
 
