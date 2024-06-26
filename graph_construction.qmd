@@ -290,30 +290,7 @@ open_space_graph
 ggsave("open_space_graph.png", open_space_graph)
 ```
 
-```{r}
-#| message: false
-#| label: open_space_perc
 
-open_space_perc_graph <- zoning_tidied |> 
-  mutate(req_open = case_when(
-    open_space == 1 ~ "Yes",
-    open_space == 0 ~ "No")) |>
-  ggplot(aes(x = zri,
-             y = rent_percent_income,
-             color = req_open)) +
-  geom_point(alpha = 0.2) + 
-  geom_smooth(method=lm, se = FALSE) +
-  labs(
-    title = "Open Space Requirements, Zoning, and Rent",
-    subtitle = "Open space requirements are associated with paying more income as rent and more zoning",
-    x = "Zoning Restrictiveness Index",
-    y = "Rent (dollars)",
-    color = "Open Space Required?",
-    caption = "Data from US Census and Eviction Lab's National Zoning and Land Use Database at\n https://evictionlab.org/national-zoning-and-land-use-database/\n and the 2018-2022 American Community Survey"
-  )
-  
-open_space_perc_graph
-```
 
 
 
